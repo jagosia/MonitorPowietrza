@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, render_template
 from azure.cosmos import CosmosClient
 
 app = Flask(__name__)
@@ -19,16 +19,18 @@ def get_user_data(user_id):
     database = client.get_database_client(database_name)
     container = database.get_container_client(container_name)
 
-    query = f"SELECT c.name, c.surname FROM c WHERE c.id = '{user_id}'"
+    query = (f"SELECT c.na"
+             f"me, c.surname FROM c WHERE c.id = '{user_id}'")
     items = list(container.query_items(query=query, enable_cross_partition_query=True))
 
     return items
 
 @app.route('/')
 def hello_world():
-    user_id = 1
-    user_data = get_user_data(user_id)
-    return format_user_data(user_data[0])
+    # user_id = 1
+    # user_data = get_user_data(user_id)
+    # return format_user_data(user_data[0])
+    return render_template("index.html")
 
 
 if __name__ == '__main__':
