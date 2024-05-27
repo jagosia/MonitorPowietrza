@@ -26,12 +26,15 @@ def get_user_data(user_id):
     return items
 
 @app.route('/')
-def hello_world():
+def index():
     # user_id = 1
     # user_data = get_user_data(user_id)
     # return format_user_data(user_data[0])
     return render_template("index.html")
 
+@app.route('/login')
+def login():
+    return render_template("login.html")
 
 if __name__ == '__main__':
     app.run()
