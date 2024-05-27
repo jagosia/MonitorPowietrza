@@ -10,7 +10,7 @@
 7. Dodanie .gitignore i wysłanie kodu na GitHub.
 
 ## 2024-05-27
-1. Dodanie biblioteki boostrap
+1. Dodanie biblioteki bootstrap
 2. Dodanie index.html z nagłówkiem, stopką i zawartością
 3. Dodanie styli
 4. Dodanie przycisku login, oraz szablonu login.html
