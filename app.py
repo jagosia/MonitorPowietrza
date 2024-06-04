@@ -1,6 +1,13 @@
 import os
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, url_for
 from azure.cosmos import CosmosClient
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField
+from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError
+from flask_wtf.csrf import CSRFProtect
+import hashlib
+import uuid
+import json
 
 app = Flask(__name__)
 
@@ -9,7 +16,10 @@ key = os.environ.get('COSMOS_DB_KEY')
 client = CosmosClient(url, credential=key)
 database_name = 'Monitor'
 container_name = 'Users'
+app.secret_key = '123AD##'
+csrf = CSRFProtect(app)
 
+#TODO: Do usunięcia
 def format_user_data(user_data):
     name = user_data.get('name', '')
     surname = user_data.get('surname', '')
@@ -25,6 +35,13 @@ def get_user_data(user_id):
 
     return items
 
+def add_new_user(user):
+    database = client.get_database_client(database_name)
+    container = database.get_container_client(container_name)
+
+    container.upsert_item(user)
+
+
 @app.route('/')
 def index():
     # user_id = 1
@@ -32,9 +49,79 @@ def index():
     # return format_user_data(user_data[0])
     return render_template("index.html")
 
+
 @app.route('/login')
 def login():
     return render_template("login.html")
 
+
+@app.route('/register')
+def register():
+    #TODO: stylowanie błędów w formularzu
+    return render_template("register.html", form=RegistrationForm())
+
+@app.route('/register', methods=['POST'])
+def register_post():
+    form = RegistrationForm()
+    hash_object = hashlib.sha1(form.password.data.encode())
+    hex_digest = hash_object.hexdigest()
+
+    valid = form.validate_on_submit()
+    #TODO: unikalność maila
+    if valid:
+        user = User(
+            id=str(uuid.uuid4()),
+            name=form.name.data,
+            lastname=form.lastname.data,
+            email=form.email.data,
+            phone=form.phone.data,
+            passwordHash=hex_digest
+        )
+        test = get_user_data("1")
+        add_new_user(user.to_dict())
+        return redirect(url_for('index'))
+    return render_template('register.html', form=form)
+
 if __name__ == '__main__':
     app.run()
+
+class RegistrationForm(FlaskForm):
+    name = StringField('Imię', validators=[DataRequired(), Length(min=2, max=50)])
+    lastname = StringField('Nazwisko', validators=[DataRequired(), Length(min=2, max=50)])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    phone = StringField('Telefon', validators=[DataRequired(), Length(min=9, max=15)])
+    password = PasswordField('Hasło', validators=[
+        DataRequired(),
+        Length(min=6, message='Hasło musi mieć przynajmniej 6 znaków.')
+    ])
+    password2 = PasswordField('Powtórz hasło', validators=[
+        DataRequired(),
+        EqualTo('password', message='Hasła muszą być identyczne.')
+    ])
+
+    def validate_phone(form, field):
+        if not field.data.isdigit():
+            raise ValidationError('Numer telefonu może zawierać tylko cyfry.')
+
+class User:
+    def __init__(self, id, name, lastname, email, phone, passwordHash):
+        self.id = id
+        self.name = name
+        self.lastname = lastname
+        self.email = email
+        self.phone = phone
+        self.passwordHash = passwordHash
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'lastname': self.lastname,
+            'email': self.email,
+            'phone': self.phone,
+            'passwordHash': self.passwordHash,
+            'partition': self.lastname[0]
+        }
+
+    def to_json(self):
+        return json.dumps(self.to_dict())
