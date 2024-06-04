@@ -35,7 +35,8 @@
 <body>
     <div class="container">
         <main role="main" class="p-3 form-control">
-            <form>
+            <form method="post" action="/login">
+                {{ form.hidden_tag() }}
                 <div class="mb-3">
                     <label for="email" class="form-label">Email</label>
                     <input type="email" class="form-control" id="email" name="email">
