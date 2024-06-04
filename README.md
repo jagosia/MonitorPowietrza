@@ -17,3 +17,8 @@
 5. Utworzenie formularza logowania w login.html. Dodanie styli
 6. Utworzenie akcji (funkcji) login i zwrócenie szablonu login.html
 
+## 2024-06-04
+1. Dodanie okna rejestracji, modelu rejestracji, obsługa walidacji, zapis użytkownika do bazy
+2. Aktualizacja okna logowania, obsługa logowania, zapis użytkownika w sesji.
+3. Wyświetlenie profilu zalogowanego użytkownika w nagłówku
+4. Dodanie i obsługa przycisku wylogowania.
