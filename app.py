@@ -95,6 +95,7 @@ def register_post():
             lastname=form.lastname.data,
             email=form.email.data,
             phone=form.phone.data,
+            city=form.city.data,
             passwordHash=hex_digest
         )
 
@@ -110,6 +111,7 @@ class RegistrationForm(FlaskForm):
     lastname = StringField('Nazwisko', validators=[DataRequired(), Length(min=2, max=50)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     phone = StringField('Telefon', validators=[DataRequired(), Length(min=9, max=15)])
+    city = StringField('Miasto', validators=[DataRequired(), Length(min=2, max=50)])
     password = PasswordField('Hasło', validators=[
         DataRequired(),
         Length(min=6, message='Hasło musi mieć przynajmniej 6 znaków.')
@@ -131,12 +133,13 @@ class LoginForm(FlaskForm):
     ])
 
 class User:
-    def __init__(self, id, name, lastname, email, phone, passwordHash):
+    def __init__(self, id, name, lastname, email, phone, city, passwordHash):
         self.id = id
         self.name = name
         self.lastname = lastname
         self.email = email
         self.phone = phone
+        self.city = city
         self.passwordHash = passwordHash
 
     def to_dict(self):
@@ -146,6 +149,7 @@ class User:
             'lastname': self.lastname,
             'email': self.email,
             'phone': self.phone,
+            'city': self.city,
             'passwordHash': self.passwordHash,
             'partition': self.lastname[0]
         }

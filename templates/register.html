@@ -66,6 +66,13 @@
                     {% endfor %}
                 </div>
                 <div class="mb-3">
+                    <label for="city" class="form-label">Miasto</label>
+                    <input type="text" class="form-control" id="city" name="city">
+                    {% for error in form.city.errors %}
+                        <span class="alert alert-danger">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                <div class="mb-3">
                     <label for="password" class="form-label">Hasło</label>
                     <input type="password" class="form-control" id="password" name="password">
                     {% for error in form.password.errors %}
