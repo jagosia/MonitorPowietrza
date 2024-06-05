@@ -6,8 +6,77 @@
     <title>Monitor jakości powietrza</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='libs/bootstrap/bootstrap.min.css') }}" >
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/site.css') }}" >
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <!-- DevExtreme theme -->
+    <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/23.2.6/css/dx.light.css">
+    <!-- DevExtreme libraries (reference only one of them) -->
+    <script type="text/javascript" src="https://cdn3.devexpress.com/jslib/23.2.6/js/dx.all.js"></script>
+    <script>
+        $(() => {
+                const apiKey = $("body").attr('data-api-key');
+                navigator.geolocation.getCurrentPosition(function(position) {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+
+                const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`;
+                const airUrl = `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`
+                $.ajax({
+                    url: weatherUrl,
+                    method: 'GET',
+                    success: function(response) {
+                        console.log(response);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching weather data:', error);
+                    }
+                });
+
+                $.ajax({
+                    url: airUrl,
+                    method: 'GET',
+                    success: function(response) {
+                        console.log(response);
+                        $('#gauge').dxCircularGauge({
+                            scale: {
+                              startValue: 1,
+                              endValue: 5,
+                              tickInterval: 1,
+                              label: {
+                                useRangeColors: true,
+                              },
+                            },
+                            rangeContainer: {
+                              palette: 'pastel',
+                              ranges: [
+                                { startValue: 0, endValue: 1.5 },
+                                { startValue: 1.5, endValue: 2.5 },
+                                { startValue: 2.5, endValue: 3.5 },
+                                { startValue: 3.5, endValue: 4.5 },
+                                { startValue: 4.5, endValue: 5.5 },
+                              ],
+                            },
+                            title: {
+                              text: 'Index jakości powietrza',
+                              font: { size: 28 },
+                            },
+                            value: response.list[0].main.aqi
+                          });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching weather data:', error);
+                    }
+                });
+            });
+        });
+    </script>
+    <style>
+        #gauge {
+          height: 440px;
+          width: 100%;
+        }
+    </style>
 </head>
-<body>
+<body class="dx-viewport" data-api-key="{{ openApiKey }}">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
@@ -43,8 +112,7 @@
     <div class="container">
         <main role="main" class="pb-3">
             <div class="text-center">
-                <h1 class="display-4">Monitor jakości powietrza</h1>
-                <p></p>
+                <div id="gauge"></div>
             </div>
         </main>
     </div>

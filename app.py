@@ -13,6 +13,7 @@ app = Flask(__name__)
 
 url = 'https://monitor-db.documents.azure.com:443/'
 key = os.environ.get('COSMOS_DB_KEY')
+openApiKey = os.environ.get('OPEN_API_KEY')
 client = CosmosClient(url, credential=key)
 database_name = 'Monitor'
 container_name = 'Users'
@@ -46,10 +47,10 @@ def add_new_user(user):
 
 @app.route('/')
 def index():
-    user = session['user']
+    if('user' in session):
+        return render_template("index.html", user=session['user'], openApiKey=openApiKey)
 
-    return render_template("index.html", user=user)
-
+    return render_template("index.html", openApiKey=openApiKey)
 
 @app.route('/login')
 def login():
