@@ -22,3 +22,11 @@
 2. Aktualizacja okna logowania, obsługa logowania, zapis użytkownika w sesji.
 3. Wyświetlenie profilu zalogowanego użytkownika w nagłówku
 4. Dodanie i obsługa przycisku wylogowania.
+
+## 2024-06-05
+1. Dodanie pobierania podstawowych danych o geolokalizacji (koordynaty)
+2. Dodanie biblioteki jQuery
+3. Pobranie bieżących warunków pogodowych dla otrzymanych współrzędnych
+4. Pobranie bieżących warunków jakości powietrza dla otrzymanych współrzędnych
+5. Dodanie biblioteki Devextreme do wyświetlania danych za pomocą nowoczesnych kontrolek
+6. Wyświetlenie indeksu jakości powietrza w bieżącej lokalizacji
