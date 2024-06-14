@@ -16,7 +16,7 @@ subject = "Email Subject"
 body = "This is the body of the text message"
 sender = "monitorpowietrza@gmail.com"
 recipients = ["marcin.jagiela@hotmail.com"]
-password = "owqn wxlt zgmh vpnt"
+password = ""
 
 app = Flask(__name__)
 scheduler = BackgroundScheduler()

@@ -30,3 +30,11 @@
 4. Pobranie bieżących warunków jakości powietrza dla otrzymanych współrzędnych
 5. Dodanie biblioteki Devextreme do wyświetlania danych za pomocą nowoczesnych kontrolek
 6. Wyświetlenie indeksu jakości powietrza w bieżącej lokalizacji    
+
+## 2024-06-14
+1. Obsługa zmiany lokalizacji
+    1. Dodanie inputa
+    2. Wyszukiwanie koordynat dla wprowadzonej lokalizacji (miasto)
+    3. Wyszukanie stanu jakości powietrza dla znalezionych koordynat
+2. Obsługa powiadamiania - wyświetlanie checkboxa w zależności od informacji w bazie
+3. Podstawowa obsługa wysyłania maila
