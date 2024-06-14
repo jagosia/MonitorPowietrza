@@ -64,7 +64,7 @@ def get_user_by_email(email):
     database = client.get_database_client(database_name)
     container = database.get_container_client(container_name)
 
-    query = (f"SELECT c.id, c.name,c.surname, c.email, c.passwordHash, c.phone, c.city "
+    query = (f"SELECT c.id, c.name,c.surname, c.email, c.passwordHash, c.phone, c.city, c.notification "
              f"FROM c WHERE c.email = '{email}'")
     result = list(container.query_items(query=query, enable_cross_partition_query=True))
     if len(result) == 0:
@@ -139,7 +139,8 @@ def register_post():
             email=form.email.data,
             phone=form.phone.data,
             city=form.city.data,
-            passwordHash=hex_digest
+            passwordHash=hex_digest,
+            notification=False
         )
 
         add_new_user(user.to_dict())
@@ -155,6 +156,7 @@ class RegistrationForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     phone = StringField('Telefon', validators=[DataRequired(), Length(min=9, max=15)])
     city = StringField('Miasto', validators=[DataRequired(), Length(min=2, max=50)])
+
     password = PasswordField('Hasło', validators=[
         DataRequired(),
         Length(min=6, message='Hasło musi mieć przynajmniej 6 znaków.')
