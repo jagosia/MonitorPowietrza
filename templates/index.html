@@ -271,8 +271,10 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            Twoja lokalizacja: <span id="location_placeholder">Nie wykryto</span>
+                        <li class="nav-item" style="display: flex">
+                            <span style="text-wrap: nowrap; position: relative;top: 8px;">Twoja lokalizacja:</span>
+                            <input style="margin-left: 10px; margin-right: 10px" class="form-control" type="text" value="{{ user['city'] }}">
+                            <button class="btn btn-primary">Szukaj</button>
                         </li>
                     </ul>
                     <ul class="navbar-nav">

@@ -9,6 +9,14 @@ import hashlib
 import uuid
 import json
 from apscheduler.schedulers.background import BackgroundScheduler
+import smtplib
+from email.mime.text import MIMEText
+
+subject = "Email Subject"
+body = "This is the body of the text message"
+sender = "monitorpowietrza@gmail.com"
+recipients = ["marcin.jagiela@hotmail.com"]
+password = "owqn wxlt zgmh vpnt"
 
 app = Flask(__name__)
 scheduler = BackgroundScheduler()
@@ -22,6 +30,14 @@ container_name = 'Users'
 app.secret_key = '123AD##'
 csrf = CSRFProtect(app)
 
+def send_email(subject, body, sender, recipients, password):
+    msg = MIMEText(body)
+    msg['Subject'] = subject
+    msg['From'] = sender
+    msg['To'] = ', '.join(recipients)
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
+       smtp_server.login(sender, password)
+       smtp_server.sendmail(sender, recipients, msg.as_string())
 
 def job():
     print("Scheduled job executed")
@@ -48,7 +64,7 @@ def get_user_by_email(email):
     database = client.get_database_client(database_name)
     container = database.get_container_client(container_name)
 
-    query = (f"SELECT c.id, c.name,c.surname, c.email, c.passwordHash, c.phone "
+    query = (f"SELECT c.id, c.name,c.surname, c.email, c.passwordHash, c.phone, c.city "
              f"FROM c WHERE c.email = '{email}'")
     result = list(container.query_items(query=query, enable_cross_partition_query=True))
     if len(result) == 0:
@@ -61,6 +77,14 @@ def add_new_user(user):
     container = database.get_container_client(container_name)
 
     container.upsert_item(user)
+
+
+@app.route('/mail')
+def mail():
+    print('Sending...')
+    send_email(body, subject, sender, recipients, password)
+    print('Sent')
+    return "Ok"
 
 
 @app.route('/')
