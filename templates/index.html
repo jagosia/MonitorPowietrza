@@ -24,7 +24,9 @@
                 url: weatherUrl,
                 method: 'GET',
                 success: function(response) {
-                    console.log(response);
+                     let location = response.name;
+                    $("#location_placeholder").text(location);
+                    console.log(location)
                 },
                 error: function(xhr, status, error) {
                     console.error('Error fetching weather data:', error);
@@ -270,10 +272,7 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark">Dom</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark">O programie</a>
+                            Twoja lokalizacja: <span id="location_placeholder">Nie wykryto</span>
                         </li>
                     </ul>
                     <ul class="navbar-nav">

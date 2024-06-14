@@ -29,4 +29,4 @@
 3. Pobranie bieżących warunków pogodowych dla otrzymanych współrzędnych
 4. Pobranie bieżących warunków jakości powietrza dla otrzymanych współrzędnych
 5. Dodanie biblioteki Devextreme do wyświetlania danych za pomocą nowoczesnych kontrolek
-6. Wyświetlenie indeksu jakości powietrza w bieżącej lokalizacji
+6. Wyświetlenie indeksu jakości powietrza w bieżącej lokalizacji    

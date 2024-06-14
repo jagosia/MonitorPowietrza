@@ -8,8 +8,10 @@ from flask_wtf.csrf import CSRFProtect
 import hashlib
 import uuid
 import json
+from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__)
+scheduler = BackgroundScheduler()
 
 url = 'https://monitor-db.documents.azure.com:443/'
 key = os.environ.get('COSMOS_DB_KEY')
@@ -19,6 +21,22 @@ database_name = 'Monitor'
 container_name = 'Users'
 app.secret_key = '123AD##'
 csrf = CSRFProtect(app)
+
+
+def job():
+    print("Scheduled job executed")
+
+scheduler.add_job(job, 'interval', seconds=2)
+
+appHasRunBefore:bool = False
+
+@app.before_request
+def start_scheduler():
+    global appHasRunBefore
+    if not appHasRunBefore:
+        scheduler.start()
+        appHasRunBefore = True
+
 
 #TODO: Do usunięcia
 def format_user_data(user_data):
@@ -50,7 +68,7 @@ def index():
     if('user' in session):
         return render_template("index.html", user=session['user'], openApiKey=openApiKey)
 
-    return render_template("index.html", openApiKey=openApiKey)
+    return render_template("default.html", openApiKey=openApiKey)
 
 @app.route('/login')
 def login():
@@ -68,13 +86,13 @@ def login_post():
             return redirect(url_for('index'))
         else:
             return render_template('login.html', form)
-    return render_template('index.html')
+    return render_template('default.html')
 
 
 @app.route('/logout')
 def logout():
     session.pop('user', None)
-    return render_template("index.html")
+    return redirect(location="/");
 
 @app.route('/register')
 def register():
