@@ -12,36 +12,66 @@
     <!-- DevExtreme libraries (reference only one of them) -->
     <script type="text/javascript" src="https://cdn3.devexpress.com/jslib/23.2.6/js/dx.all.js"></script>
     <script>
-    $(() => {
-            const apiKey = $("body").attr('data-api-key');
-            navigator.geolocation.getCurrentPosition(function(position) {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
+        let apiKey = '';
 
-            const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`;
-            const airUrl = `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`
+        function GetData() {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                let lat = position.coords.latitude;
+                let lon = position.coords.longitude;
+
+                const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`;
+                const airUrl = `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`
+                $.ajax({
+                    url: weatherUrl,
+                    method: 'GET',
+                    success: function(response) {
+                        let location = response.name;
+                        $("#location_placeholder").text(location);
+                        console.log(location)
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching weather data:', error);
+                    }
+                });
+
+                $.ajax({
+                    url: airUrl,
+                    method: 'GET',
+                    success: handleAirResponse,
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching weather data:', error);
+                    }
+                });
+            });
+        }
+    $(() => {
+        apiKey = $("body").attr('data-api-key');
+
+        $("#SearchButton").on("click", function() {
+            let location = $("#SearchInput").val();
+            let locationUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=5&appid=${apiKey}`;
             $.ajax({
-                url: weatherUrl,
+                url: locationUrl,
                 method: 'GET',
                 success: function(response) {
-                     let location = response.name;
-                    $("#location_placeholder").text(location);
-                    console.log(location)
+                    let lat = response[0].lat;
+                    let lon = response[0].lon;
+                    const airUrl = `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`
+                    $.ajax({
+                        url: airUrl,
+                        method: 'GET',
+                        success: handleAirResponse,
+                        error: function(xhr, status, error) {
+                            console.error('Error fetching weather data:', error);
+                        }
+                    });
                 },
                 error: function(xhr, status, error) {
                     console.error('Error fetching weather data:', error);
                 }
             });
-
-            $.ajax({
-                url: airUrl,
-                method: 'GET',
-                success: handleAirResponse,
-                error: function(xhr, status, error) {
-                    console.error('Error fetching weather data:', error);
-                }
-            });
         });
+        GetData();
     });
 
     handleAirResponse = function(response) {
@@ -273,8 +303,8 @@
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item" style="display: flex">
                             <span style="text-wrap: nowrap; position: relative;top: 8px;">Twoja lokalizacja:</span>
-                            <input style="margin-left: 10px; margin-right: 10px" class="form-control" type="text" value="{{ user['city'] }}">
-                            <button class="btn btn-primary">Szukaj</button>
+                            <input id="SearchInput" style="margin-left: 10px; margin-right: 10px" class="form-control" type="text" value="{{ user['city'] }}">
+                            <button id="SearchButton" class="btn btn-primary">Szukaj</button>
                         </li>
                     </ul>
                     <ul class="navbar-nav">
