@@ -15,7 +15,7 @@
             padding: 0;
         }
         .container {
-            width: 330px;
+            width: 400px;
             height: 100vh;
             display: flex;
             justify-content: center;
@@ -30,6 +30,10 @@
             position: relative;
             top: 5px;
         }
+        div.alert.alert-danger {
+            padding: 5px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -41,49 +45,49 @@
                     <label for="name" class="form-label">Imię</label>
                     <input type="text" class="form-control" id="name" name="name">
                     {% for error in form.name.errors %}
-                        <span class="alert alert-danger">{{ error }}</span>
+                        <div class="alert alert-danger"><small>{{ error }} </small></div>
                     {% endfor %}
                 </div>
                 <div class="mb-3">
                     <label for="lastname" class="form-label">Nazwisko</label>
                     <input type="text" class="form-control" id="lastname" name="lastname">
                     {% for error in form.lastname.errors %}
-                        <span class="alert alert-danger">{{ error }}</span>
+                        <div class="alert alert-danger"><small>{{ error }} </small></div>
                     {% endfor %}
                 </div>
                 <div class="mb-3">
                     <label for="email" class="form-label">Email</label>
                     <input type="text" class="form-control" id="email" name="email">
                     {% for error in form.email.errors %}
-                        <span class="alert alert-danger">{{ error }}</span>
+                        <div class="alert alert-danger"><small>{{ error }} </small></div>
                     {% endfor %}
                 </div>
                 <div class="mb-3">
                     <label for="phone" class="form-label">Telefon</label>
                     <input type="text" class="form-control" id="phone" name="phone">
                     {% for error in form.phone.errors %}
-                        <span class="alert alert-danger">{{ error }}</span>
+                        <div class="alert alert-danger"><small>{{ error }} </small></div>
                     {% endfor %}
                 </div>
                 <div class="mb-3">
                     <label for="city" class="form-label">Miasto</label>
                     <input type="text" class="form-control" id="city" name="city">
                     {% for error in form.city.errors %}
-                        <span class="alert alert-danger">{{ error }}</span>
+                        <div class="alert alert-danger"><small>{{ error }} </small></div>
                     {% endfor %}
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Hasło</label>
                     <input type="password" class="form-control" id="password" name="password">
                     {% for error in form.password.errors %}
-                        <span class="alert alert-danger">{{ error }}</span>
+                        <div class="alert alert-danger"><small>{{ error }} </small></div>
                     {% endfor %}
                 </div>
                 <div class="mb-3">
                     <label for="password2" class="form-label">Powtórz hasło</label>
                     <input type="password" class="form-control" id="password2" name="password2">
                     {% for error in form.password2.errors %}
-                        <span class="alert alert-danger">{{ error }}</span>
+                        <div class="alert alert-danger"><small>{{ error }} </small></div>
                     {% endfor %}
                 </div>
                 <div class="button-container">
