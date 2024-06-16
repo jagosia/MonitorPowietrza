@@ -38,3 +38,13 @@
     3. Wyszukanie stanu jakości powietrza dla znalezionych koordynat
 2. Obsługa powiadamiania - wyświetlanie checkboxa w zależności od informacji w bazie
 3. Podstawowa obsługa wysyłania maila
+
+## 2024-06-15
+1. Obsługa powiadamiania
+    1. Implementacja schedulera
+    2. Wysyłka maila
+    3. Impementacja logiki wysyłania maila 
+        (przekroczenie wartości, nie częściej niż ustalony interwał, nie w nocy, użytkownik chce być powiadamiany)
+2. Testowanie na środowisku lokalnym
+3. Wdrożenie na platformę Azure
+4. Testowanie na platformie Azure
