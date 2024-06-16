@@ -10,6 +10,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 security = HTTPBearer()
 
+
 def create_access_token(data: dict):
     try:
         to_encode = data.copy()
@@ -19,6 +20,8 @@ def create_access_token(data: dict):
     except Exception as e:
         print(f"JWT Encoding Error: {e}")
         return None  # Handle the error as needed
+
+
 def verify_token(credentials: HTTPAuthorizationCredentials = Security(security)):
     token = credentials.credentials
     try:

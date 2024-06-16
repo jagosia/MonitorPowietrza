@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, redirect, url_for, request, session, make_response
-from azure.cosmos import CosmosClient, user
+from azure.cosmos import CosmosClient
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError
@@ -22,9 +22,11 @@ from auth import create_access_token, verify_token
 
 fast_app = FastAPI()
 
+
 class LoginData(BaseModel):
     login: str
     password: str
+
 
 @fast_app.post("/login")
 def login(data: LoginData):
@@ -37,46 +39,44 @@ def login(data: LoginData):
     else:
         raise HTTPException(status_code=400, detail="Invalid login or password")
 
+
 @fast_app.get("/air/{city}")
 def hello(city: str, token: dict = Depends(verify_token)):
-    locationUrl = 'http://api.openweathermap.org/geo/1.0/direct?q=' + city + '&limit=5&appid=' + openApiKey
-    response = requests.get(locationUrl)
+    location_url = 'https://api.openweathermap.org/geo/1.0/direct?q=' + city + '&limit=5&appid=' + open_api_key
+    response = requests.get(location_url)
     json_data = response.json()
     lon = json_data[0]['lon']
     lat = json_data[0]['lat']
-    airUrl = 'http://api.openweathermap.org/data/2.5/air_pollution?lat=' + str(lat) + '&lon=' + str(
-        lon) + '&appid=' + openApiKey
-    response = requests.get(airUrl)
+    air_url = 'https://api.openweathermap.org/data/2.5/air_pollution?lat=' + str(lat) + '&lon=' + str(
+        lon) + '&appid=' + open_api_key
+    response = requests.get(air_url)
     json_data = response.json()
     return {"air": json_data}
 
 
 app = Flask(__name__)
 
-
 app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {
     '/monitor': app,
     '/api': ASGIMiddleware(fast_app),
 })
 
-
-
 sender = "monitorpowietrza@gmail.com"
-
 
 scheduler = BackgroundScheduler()
 
 url = 'https://monitor-db.documents.azure.com:443/'
 key = os.environ.get('COSMOS_DB_KEY')
-openApiKey = os.environ.get('OPEN_API_KEY')
+open_api_key = os.environ.get('OPEN_API_KEY')
 password = os.environ.get('GMAIL_KEY')
 client = CosmosClient(url, credential=key)
 database_name = 'Monitor'
 container_name = 'Users'
-app.secret_key = os.environ.get('APP_SECRET_KEY')
+app.secret_key = '123AD##'
 csrf = CSRFProtect(app)
-aqi_descriptions = { "3" : "fair", "4": "poor", "5": "very poor"}
-aqi_advice = { "3" : "limit outdoor activities", "4": "avoid outdoor activities", "5": "stay home"}
+aqi_descriptions = {"3": "fair", "4": "poor", "5": "very poor"}
+aqi_advice = {"3": "limit outdoor activities", "4": "avoid outdoor activities", "5": "stay home"}
+
 
 def generate_air_quality_email(recipient, location, air_quality_index):
     description = aqi_descriptions[str(air_quality_index)]
@@ -99,7 +99,9 @@ def generate_air_quality_email(recipient, location, air_quality_index):
     """
     # Create a Jinja2 Template object
     template = jinja2.Template(template_html)
-    return template.render(recipient=recipient, location=location, air_quality_index=air_quality_index, description=description,advice=advice)
+    return template.render(recipient=recipient, location=location, air_quality_index=air_quality_index,
+                           description=description, advice=advice)
+
 
 def send_email(subject, body, sender, recipients, password):
     msg = MIMEText(body, 'html')
@@ -107,8 +109,8 @@ def send_email(subject, body, sender, recipients, password):
     msg['From'] = sender
     msg['To'] = ', '.join(recipients)
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
-       smtp_server.login(sender, password)
-       smtp_server.sendmail(sender, recipients, msg.as_string())
+        smtp_server.login(sender, password)
+        smtp_server.sendmail(sender, recipients, msg.as_string())
 
 
 def is_between_4_to_20_utc():
@@ -116,6 +118,7 @@ def is_between_4_to_20_utc():
     current_hour = current_time_utc.hour
 
     return 4 <= current_hour < 21
+
 
 def was_notified_recently(person):
     last_notification_str = person.get('lastNotification', None)
@@ -129,7 +132,8 @@ def was_notified_recently(person):
     else:
         return False
 
-#@app.route('/notify')
+
+# @app.route('/notify')
 def job():
     print("Scheduled job executed")
     database = client.get_database_client(database_name)
@@ -140,7 +144,6 @@ def job():
     if len(result) == 0:
         print('No notification needed')
         return
-    #scheduler.remove_job('notification_job')
     for person in result:
         if not is_between_4_to_20_utc():
             print('Skipping sending notifications at night')
@@ -150,13 +153,14 @@ def job():
             continue
 
         city = person['city']
-        locationUrl = 'http://api.openweathermap.org/geo/1.0/direct?q='+city+'&limit=5&appid='+ openApiKey
+        locationUrl = 'http://api.openweathermap.org/geo/1.0/direct?q=' + city + '&limit=5&appid=' + open_api_key
         response = requests.get(locationUrl)
         json_data = response.json()
         lon = json_data[0]['lon']
         lat = json_data[0]['lat']
         # print(lon, lat)
-        airUrl = 'http://api.openweathermap.org/data/2.5/air_pollution?lat=' + str(lat) + '&lon=' + str(lon) + '&appid='+openApiKey
+        airUrl = 'http://api.openweathermap.org/data/2.5/air_pollution?lat=' + str(lat) + '&lon=' + str(
+            lon) + '&appid=' + open_api_key
         response = requests.get(airUrl)
         json_data = response.json()
         aqi = json_data['list'][0]['main']['aqi']
@@ -164,18 +168,21 @@ def job():
             continue
 
         email_body = generate_air_quality_email(person['name'], person['city'], aqi)
-        send_email('Air quality alert',email_body,sender,[person['email']],password)
+        send_email('Air quality alert', email_body, sender, [person['email']], password)
 
         person['lastNotification'] = datetime.now(timezone.utc).isoformat()
         container.upsert_item(person)
         print('Done')
 
-def hearbeat_job():
+
+def heartbeat_job():
     print('Heart beat')
 
-scheduler.add_job(job, 'interval', seconds = 600, id='notification_job')
-scheduler.add_job(hearbeat_job, 'interval', seconds = 5, id='hearbeat_job')
+
+scheduler.add_job(job, 'interval', seconds=600, id='notification_job')
+scheduler.add_job(heartbeat_job, 'interval', seconds=5, id='heartbeat_job')
 appHasRunBefore: bool = False
+
 
 @app.before_request
 def start_scheduler():
@@ -186,6 +193,7 @@ def start_scheduler():
         scheduler.start()
         appHasRunBefore = True
 
+
 def get_user_by_email(email):
     database = client.get_database_client(database_name)
     container = database.get_container_client(container_name)
@@ -195,8 +203,8 @@ def get_user_by_email(email):
     result = list(container.query_items(query=query, enable_cross_partition_query=True))
     if len(result) == 0:
         return None
-
     return result[0]
+
 
 def add_new_user(user):
     database = client.get_database_client(database_name)
@@ -205,36 +213,31 @@ def add_new_user(user):
     container.upsert_item(user)
 
 
-# @app.route('/mail')
-# def mail():
-#     print('Sending...')
-#     send_email(body, subject, sender, recipients, password)
-#     print('Sent')
-#     return "Ok"
-
 @app.route('/toggle')
 def toggle():
-    id = session['user']['id'];
+    user_id = session['user']['id']
     print(session['user'])
-    key = session['user']['lastname'][0];
+    partition_key = session['user']['lastname'][0]
     database = client.get_database_client(database_name)
     container = database.get_container_client(container_name)
-    document = container.read_item(item=id, partition_key=key)
+    document = container.read_item(item=user_id, partition_key=partition_key)
     document['notification'] = not document['notification']
-    container.replace_item(item=id, body=document)
+    container.replace_item(item=user_id, body=document)
     return make_response('OK', 200)
 
 
 @app.route('/')
 def index():
-    if('user' in session):
-        return render_template("index.html", user=session['user'], openApiKey=openApiKey)
+    if 'user' in session:
+        return render_template("index.html", user=session['user'], openApiKey=open_api_key)
 
-    return render_template("default.html", openApiKey=openApiKey)
+    return render_template("default.html", openApiKey=open_api_key)
+
 
 @app.route('/login')
 def login():
     return render_template("login.html", form=LoginForm())
+
 
 @app.route('/login', methods=['POST'])
 def login_post():
@@ -254,12 +257,13 @@ def login_post():
 @app.route('/logout')
 def logout():
     session.pop('user', None)
-    return redirect(location="/");
+    return redirect(location="/")
+
 
 @app.route('/register')
 def register():
-    #TODO: stylowanie błędów w formularzu
     return render_template("register.html", form=RegistrationForm())
+
 
 @app.route('/register', methods=['POST'])
 def register_post():
@@ -268,9 +272,8 @@ def register_post():
     hex_digest = hash_object.hexdigest()
 
     valid = form.validate_on_submit()
-    #TODO: unikalność maila
     if valid:
-        user = User(
+        new_user = User(
             id=str(uuid.uuid4()),
             name=form.name.data,
             lastname=form.lastname.data,
@@ -281,12 +284,10 @@ def register_post():
             notification=False
         )
 
-        add_new_user(user.to_dict())
+        add_new_user(new_user.to_dict())
         return redirect(url_for('index'))
     return render_template('register.html', form=form)
 
-if __name__ == '__main__':
-    app.run()
 
 class RegistrationForm(FlaskForm):
     name = StringField('Imię', validators=[DataRequired(), Length(min=2, max=50)])
@@ -304,9 +305,11 @@ class RegistrationForm(FlaskForm):
         EqualTo('password', message='Hasła muszą być identyczne.')
     ])
 
-    def validate_phone(form, field):
+    @staticmethod
+    def validate_phone(field):
         if not field.data.isdigit():
             raise ValidationError('Numer telefonu może zawierać tylko cyfry.')
+
 
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
@@ -314,6 +317,7 @@ class LoginForm(FlaskForm):
         DataRequired(),
         Length(min=6, message='Hasło musi mieć przynajmniej 6 znaków.')
     ])
+
 
 class User:
     def __init__(self, id, name, lastname, email, phone, city, passwordHash, notification, lastNotification=None):
@@ -343,3 +347,7 @@ class User:
 
     def to_json(self):
         return json.dumps(self.to_dict())
+
+
+if __name__ == '__main__':
+    app.run()

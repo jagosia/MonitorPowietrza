@@ -1,3 +1,5 @@
+flask
+azure
 azure-cosmos
 flask-wtf
 email_validator
@@ -7,3 +9,7 @@ uvicorn
 werkzeug
 a2wsgi
 PyJWT
+wtforms
+requests
+jinja2
+pydantic
