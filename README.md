@@ -48,3 +48,11 @@
 2. Testowanie na środowisku lokalnym
 3. Wdrożenie na platformę Azure
 4. Testowanie na platformie Azure
+
+## 2024-06-16
+1. Dodanie FastApi
+2. Implementacja endpointu autoryzacji
+3. Implementacja endpointu /air zwracającego aktualny stan powietrza w wybranym mieście
+4. Podstawowe wyczyszczenie aplikacji
+5. Poprawienie stylowania błędów formularza
+6. Dodanie walidatorów
