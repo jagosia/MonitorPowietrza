@@ -14,10 +14,55 @@ from email.mime.text import MIMEText
 import jinja2
 import requests
 from datetime import datetime, timezone, timedelta
+from fastapi import FastAPI, HTTPException, Depends
+from werkzeug.middleware.dispatcher import DispatcherMiddleware
+from a2wsgi import ASGIMiddleware
+from pydantic import BaseModel
+from auth import create_access_token, verify_token
+
+fast_app = FastAPI()
+
+class LoginData(BaseModel):
+    login: str
+    password: str
+
+@fast_app.post("/login")
+def login(data: LoginData):
+    hash_object = hashlib.sha1(data.password.encode())
+    password_hash = hash_object.hexdigest()
+    user_data = get_user_by_email(data.login)
+    if user_data and password_hash == user_data['passwordHash']:
+        token = create_access_token({"sub": data.login})
+        return {"token": token}
+    else:
+        raise HTTPException(status_code=400, detail="Invalid login or password")
+
+@fast_app.get("/air/{city}")
+def hello(city: str, token: dict = Depends(verify_token)):
+    locationUrl = 'http://api.openweathermap.org/geo/1.0/direct?q=' + city + '&limit=5&appid=' + openApiKey
+    response = requests.get(locationUrl)
+    json_data = response.json()
+    lon = json_data[0]['lon']
+    lat = json_data[0]['lat']
+    airUrl = 'http://api.openweathermap.org/data/2.5/air_pollution?lat=' + str(lat) + '&lon=' + str(
+        lon) + '&appid=' + openApiKey
+    response = requests.get(airUrl)
+    json_data = response.json()
+    return {"air": json_data}
+
+
+app = Flask(__name__)
+
+
+app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {
+    '/monitor': app,
+    '/api': ASGIMiddleware(fast_app),
+})
+
+
 
 sender = "monitorpowietrza@gmail.com"
 
-app = Flask(__name__)
 
 scheduler = BackgroundScheduler()
 
@@ -28,7 +73,7 @@ password = os.environ.get('GMAIL_KEY')
 client = CosmosClient(url, credential=key)
 database_name = 'Monitor'
 container_name = 'Users'
-app.secret_key = '123AD##'
+app.secret_key = os.environ.get('APP_SECRET_KEY')
 csrf = CSRFProtect(app)
 aqi_descriptions = { "3" : "fair", "4": "poor", "5": "very poor"}
 aqi_advice = { "3" : "limit outdoor activities", "4": "avoid outdoor activities", "5": "stay home"}

@@ -2,3 +2,8 @@ azure-cosmos
 flask-wtf
 email_validator
 apscheduler
+fastapi
+uvicorn
+werkzeug
+a2wsgi
+PyJWT
