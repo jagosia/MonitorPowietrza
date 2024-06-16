@@ -20,7 +20,7 @@
                 let lon = position.coords.longitude;
 
                 const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`;
-                const airUrl = `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`
+                const airUrl = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`
                 $.ajax({
                     url: weatherUrl,
                     method: 'GET',
@@ -49,14 +49,14 @@
 
         $("#SearchButton").on("click", function() {
             let location = $("#SearchInput").val();
-            let locationUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=5&appid=${apiKey}`;
+            let locationUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=5&appid=${apiKey}`;
             $.ajax({
                 url: locationUrl,
                 method: 'GET',
                 success: function(response) {
                     let lat = response[0].lat;
                     let lon = response[0].lon;
-                    const airUrl = `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`
+                    const airUrl = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`
                     $.ajax({
                         url: airUrl,
                         method: 'GET',
@@ -72,7 +72,21 @@
             });
         });
         GetData();
+        $("#ToggleNotification").on("click", function() {
+            $.ajax({
+                url: '/toggle',
+                method: 'GET',
+                success: function(response) {
+                    debugger;
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching weather data:', error);
+                }
+            });
+        });
     });
+
+
 
     handleAirResponse = function(response) {
                     console.log("Air");
@@ -308,11 +322,11 @@
                         </li>
                     </ul>
                     <ul class="navbar-nav">
-                        Alerty o przekroczeniu norm <input type="checkbox" class="form-check-input" {% if user['notification'] %} checked {% endif %} style="margin-left: 10px" />
+                        Alerty o przekroczeniu norm <input type="checkbox" id="ToggleNotification" {% if user['notification'] %} checked {% endif %} style="margin-left: 10px" />
                     </ul>
                     <ul class="navbar-nav">
                             {% if user  %}
-                                <span style="position: relative; top: 8px">{{ user['name'] }} {{ user['lastName'] }}</span>
+                                <span style="position: relative; top: 8px">{{ user['name'] }} {{ user['lastname'] }}</span>
                                 <li class="nav-item">
                                     <a class="nav-link primary" href="{{ url_for('logout') }}">Logout</a>
                                 </li>
